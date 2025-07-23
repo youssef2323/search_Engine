@@ -8,22 +8,32 @@ on:
 jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
+
+    env:
+      HF_SPACE: Youssef67887/Search_engine
+      HF_USERNAME: Youssef67887
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+
     steps:
+      - name: Checkout repo
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
+
+      - name: Install Git LFS (if you use large files)
+        run: git lfs install --local
 
       - name: Set git identity
         run: |
           git config user.email "actions@github.com"
           git config user.name "github-actions"
 
-      - name: Add HF remote & pull/rebase
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      - name: Add HF remote
         run: |
-          git remote add hf https://Youssef67887:${HF_TOKEN}@huggingface.co/spaces/Youssef67887/Search_engine
-          git fetch hf main || true
-          git rebase hf/main || true   # use 'git merge --no-edit hf/main' if you prefer merge
-          git push hf HEAD:main
+          git remote remove hf 2>/dev/null || true
+          git remote add hf https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}
+
+      - name: Push to HF (force overwrite)
+        run: |
+          git push hf HEAD:main --force-with-lease
