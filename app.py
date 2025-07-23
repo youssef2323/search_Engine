@@ -13,7 +13,7 @@ import os
 from dotenv import load_dotenv
 
 ##code updated
-#########
+##########
 
 
 # Custom search function to handle DuckDuckGo errors
