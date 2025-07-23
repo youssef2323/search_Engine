@@ -12,6 +12,8 @@ from langchain.tools import Tool
 import os
 from dotenv import load_dotenv
 
+##code
+
 
 # Custom search function to handle DuckDuckGo errors
 def safe_search(query):
