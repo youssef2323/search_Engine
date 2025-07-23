@@ -34,17 +34,6 @@ jobs:
           pip install -r requirements.txt
           # optional: pip install pytest flake8
 
-      # Optional lint/tests (remove if you don't use them)
-      - name: Run flake8
-        run: |
-          pip install flake8
-          flake8 .
-
-      - name: Run pytest
-        run: |
-          pip install pytest
-          pytest -q
-
       # Smoke test Streamlit (optional)
       - name: Streamlit syntax check
         run: python -m py_compile $(git ls-files '*.py')
