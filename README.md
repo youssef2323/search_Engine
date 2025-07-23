@@ -1,15 +1,11 @@
-# search_Engine
-
-
 ---
 title: Search Engine
 emoji: 🔍
 colorFrom: gray
 colorTo: blue
-sdk: docker
+sdk: streamlit
+app_file: app.py
 pinned: false
 ---
 
 # Search Engine
-
-(Your description…)
