@@ -1,39 +1,54 @@
-name: Sync to Hugging Face hub
+name: CI
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+  pull_request:
 
 jobs:
-  sync-to-hub:
+  test-and-build:
     runs-on: ubuntu-latest
-
-    env:
-      HF_SPACE: Youssef67887/Search_engine
-      HF_USERNAME: Youssef67887
-      HF_TOKEN: ${{ secrets.HF_TOKEN }}
 
     steps:
       - name: Checkout repo
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
 
-      - name: Install Git LFS (if you use large files)
-        run: git lfs install --local
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Set git identity
-        run: |
-          git config user.email "actions@github.com"
-          git config user.name "github-actions"
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-      - name: Add HF remote
+      - name: Install deps
         run: |
-          git remote remove hf 2>/dev/null || true
-          git remote add hf https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}
+          pip install -r requirements.txt
+          # optional: pip install pytest flake8
 
-      - name: Push to HF (force overwrite)
+      # Optional lint/tests (remove if you don't use them)
+      - name: Run flake8
         run: |
-          git push hf HEAD:main --force-with-lease
+          pip install flake8
+          flake8 .
+
+      - name: Run pytest
+        run: |
+          pip install pytest
+          pytest -q
+
+      # Smoke test Streamlit (optional)
+      - name: Streamlit syntax check
+        run: python -m py_compile $(git ls-files '*.py')
+
+      # Validate Dockerfile builds
+      - name: Build Docker image
+        run: docker build -t app:ci .
